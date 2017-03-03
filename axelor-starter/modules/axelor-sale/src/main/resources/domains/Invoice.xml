@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<domain-models xmlns="http://axelor.com/xml/ns/domain-models"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/domain-models http://axelor.com/xml/ns/domain-models/domain-models_4.2.xsd">
+
+  <module name="sale" package="com.axelor.sale.db"/>
+ <sequence name="sale.order.invoice.seq" initial="1" increment="1" padding="5" prefix="SOI"/>
+	<entity name="Invoice" cachable="true">
+
+		<string name="name" sequence="sale.order.invoice.seq" readonly="true" />
+		<one-to-one name="orderSale" ref="Order" />
+		<date name="invoiceDate" />
+		<string name="state" />
+		<one-to-many name="invoiceItem" ref="InvoiceItem"
+			mappedBy="invoice" />
+		<decimal name="amount" precision="20" scale="4" />
+		<decimal name="taxAmount" precision="20" scale="4" />
+		<decimal name="totalAmount" precision="20" scale="2" />
+		<one-to-one name="image" ref="com.axelor.meta.db.MetaFile" />
+
+	</entity>
+</domain-models>

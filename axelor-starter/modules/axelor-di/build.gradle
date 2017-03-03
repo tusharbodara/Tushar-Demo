@@ -1,0 +1,16 @@
+apply plugin: 'axelor-module'
+
+module {
+	name "axelor-di"
+	title "Axelor di"
+	
+	version "1.0.0"
+	
+	description """Axelor di module demo.
+
+This is a demo module to provide quick demonstration of some new features.
+    """
+
+	// module dependencies
+	// module "modules:axelor-foo"
+}

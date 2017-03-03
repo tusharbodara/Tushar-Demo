@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_4.2.xsd">
+
+	<menuitem name="menu-invoice" order="-1000" title="Invoice" icon="fa-folder" icon-background="green" />
+
+	<menuitem name="invoice-all" parent="menu-invoice"
+    	title="All Invoice"
+    	action="invoice.all"/>
+
+
+	<action-view name="invoice.all" title="All HelloInvoice" model="com.axelor.invoice.db.HelloInvoice">
+    	<view type="grid" name="invoice-grid"/>
+	    <view type="form" name="invoice-form"/>
+	</action-view>
+
+</object-views>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_4.1.xsd">
+
+  <chart name="chart.sales.per.month" title="Sales per month">
+    
+    <search-fields> 
+     <field type="datetime" name="fromDateTime" title="From Date"/>
+     <field type="datetime" name="toDateTime" title="To Date"/>
+  </search-fields>
+    
+    <dataset type="jpql">
+    <![CDATA[
+    SELECT
+        SUM(self.totalAmount) AS amount,
+        MONTH(self.orderDate) AS month,
+        _customer.fullName AS customer
+    FROM
+        Order self
+    LEFT JOIN
+        self.customer AS _customer
+    WHERE
+        YEAR(self.orderDate) = YEAR(current_date)
+         AND self.orderDate > :fromDateTime
+      AND self.orderDate < :toDateTime
+        
+        
+    GROUP BY
+        _customer,
+        MONTH(self.orderDate)
+    ORDER BY
+        month
+    ]]>
+  <!--   <![CDATA[
+    	select sum(orderSale.total_amount) as amount ,date_part('month',orderSale.order_date) as month,contact.full_name as cust
+		from sale_order orderSale 
+		left join contact_contact As contact ON orderSale.customer=contact.id 
+		group by month,cust
+		order by month
+    ]]> -->
+    </dataset>
+    <category key="month" type="month"/>
+    <series key="amount" groupBy="cust" type="bar"/>
+  </chart>
+  
+   <chart name="chart.sales.per.month.pie" title="Sales per customer">
+    <dataset type="sql">
+    <!-- <![CDATA[
+    SELECT
+        SUM(self.totalAmount) AS amount,
+        _customer.fullName AS customer
+    FROM
+        Order self
+    LEFT JOIN
+        self.customer AS _customer
+    WHERE
+        YEAR(self.orderDate) = YEAR(current_date)
+    GROUP BY
+        _customer
+    ]]> -->
+    <![CDATA[
+    select sum(orderSale.total_amount) as amount,contact.full_name as cust
+	from sale_order orderSale
+	left join contact_contact As contact ON orderSale.customer=contact.id
+	where date_part('year',orderSale.order_date)=date_part('year',current_date)
+	group by cust
+    ]]>
+    </dataset>
+    <category key="cust"/>
+    <series key="amount" type="pie" groupBy="cust" />
+  </chart>
+
+<custom name="total.sale" title="sales Today" css="report-box">
+   <dataset type="rpc">com.axelor.sale.web.SaleOrderController:reportToday</dataset>
+   <template><![CDATA[
+
+		 <div class="report-data">
+		    <h1>{{first.total}}</h1>
+		    <small>Total sale</small>
+		    <div class="report-percent font-bold text-info pull-right">{{first.percentage}}% <i class="fa" ng-class="{'fa-level-up': first.down, 'fa-level-down': !first.down}"></i></div>
+		    <div class="report-tags"><span class="label label-important">Today</span></div>
+		</div>
+
+]]></template>
+ </custom>
+ 
+ <custom name="sales.monthly" title="sales Monthly" css="report-box">
+   <dataset type="rpc">com.axelor.sale.web.SaleOrderController:reportMonthly</dataset>
+   <template><![CDATA[
+
+		 <div class="report-data">
+		    <h1>{{first.total}}</h1>
+		    <small>Total sale</small>
+		    <div class="report-percent font-bold text-info pull-right">{{first.percentage}}% <i class="fa" ng-class="{'fa-level-up': first.down, 'fa-level-down': !first.down}"></i></div>
+		    <div class="report-tags"><span class="label label-important">Monthly</span></div>
+		</div>
+
+]]></template>
+ </custom>
+
+<!-- <custom name="total.sale" title="Total sale" css="report-box">
+   <dataset type="sql"><![CDATA[
+		select sum(orderSale.total_amount) as total from sale_order orderSale where date_part('month',orderSale.order_date)=date_part('month',current_date);
+		select (((sum(orderSale.total_amount) - (select orderSale.total_amount from sale_order orderSale where date_part('day',orderSale.order_date)=date_part('day',current_date)-1 )) * 100) /(select sum(orderSale.total_amount) as total from sale_order orderSale where date_part('month',orderSale.order_date)=date_part('month',current_date)))
+from sale_order orderSale 
+where date_part('month',orderSale.order_date)=date_part('month',current_date) ;
+
+]]></dataset>
+   <template><![CDATA[
+
+		 <div class="report-data">
+		    <h1>{{first.total}}</h1>
+		    <small>Total sale</small>
+		    <div class="report-percent font-bold text-info pull-right">{{first.per}}% <i class="fa fa-level-up"></i></div>
+		    <div class="report-tags"><span class="label label-important">Monthly</span></div>
+		</div>
+
+]]></template>
+ </custom> -->
+
+</object-views>
+

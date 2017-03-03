@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<object-views xmlns="http://axelor.com/xml/ns/object-views" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://axelor.com/xml/ns/object-views http://axelor.com/xml/ns/object-views/object-views_4.2.xsd">
+
+	<grid name="invoice-grid" title="Invoice List" model="com.axelor.sale.db.Invoice" >
+	
+		<field name="name"/>
+		<field name="orderSale"/>
+		
+	</grid>
+
+	<selection name="state.invoice.select">
+	<option value="draft">Draft</option>
+	<option value="confirm">confirm</option>
+	<option value="invoice">invoice</option>
+	<option value="paied">paied</option>
+</selection>
+	<form name="invoice-form" title="Invoice" model="com.axelor.sale.db.Invoice" onSave="com.axelor.sale.web.SaleOrderController:getInvoiceImage">
+	<toolbar>
+		<button name="btnPrint" icon="fa-print" title="Print" onClick="get.image.path,print.invoice" showIf="state=='confirm' || state=='invoice' || state=='paied'" />
+	</toolbar>
+	<panel colSpan="12">
+		<panel title="Invoice" colSpan="12">
+			<field name="name" />
+			<field name="invoiceDate" readonlyIf="state=='paied'"/>
+			<field name="orderSale" readonly="true" form-view="order-form"
+				grid-view="order-grid" />
+			<field name="state" readonly="true" colSpan="12" widget="NavSelect"
+				selection="state.invoice.select" />
+		</panel>
+		<panel title="Order-detail" colSpan="12">
+			<field name="orderSale.customer" />
+			<field name="orderSale.customer.addresses" title="Address"
+				readonly="true" colSpan="12">
+				<viewer><![CDATA[
+        <address>
+        {{record.street}}, {{record.area}}<br>
+        {{record.city}}- {{record.zip}}<br>
+        </address>
+        
+        
+        <div class="report-data">
+		    <h1>{{first.name}}</h1>
+		    <small>Total sale</small>
+		</div>
+        
+        ]]>
+				</viewer>
+				<editor x-show-titles="false">
+					<field name="street" colSpan="12" />
+					<field name="area" colSpan="12" />
+					<field name="city" colSpan="4" />
+					<field name="zip" colSpan="4" />
+				</editor>
+			</field>
+		</panel>
+
+		<!-- <field name="invoiceItem" editable="true" colSpan="12"></field> -->
+		<panel-related field="invoiceItem" editable="true"
+			colSpan="12" readonlyIf="state == 'paied'">
+
+			<field name="product" />
+			<field name="price" />
+			<field name="quantity" />
+			<field name="taxes" />
+		</panel-related>
+		<panel colSpan="4" itemSpan="12">
+			<button name="totalAmount" onClick="act.calculate" title="Total amount"
+				icon="fa-bar-chart" widget="info-button" css="btn-success" />
+
+		</panel>
+		<panel colSpan="12">
+			<panel readonly="true" colSpan="12" css="order-subtotal">
+				<field name="orderSale.amount" hidden="true" />
+				<field name="orderSale.taxAmount" hidden="true" />
+				<field name="orderSale.totalAmount" hidden="true" />
+				<field name="totalAmount" showTitle="false" colSpan="12">
+					<viewer><![CDATA[
+      <dl class="dl-horizontal">
+        <dt x-translate>Amount</dt>
+        <dd>{{record.amount}}</dd>
+        <dt x-translate>Tax amount</dt>
+        <dd>{{record.taxAmount}}</dd>
+        <dt class="order-subtotal-total" x-translate>Total amount</dt>
+        <dd class="order-subtotal-total">{{record.totalAmount}}</dd>
+      </dl>
+      ]]></viewer>
+				</field>
+			</panel>
+		</panel>
+	</panel>
+	<panel sidebar="true">
+		<field name="image" colSpan="12" showTitle="false" widget="image" />
+
+	</panel>
+	<panel sidebar="true" title="Action">
+			<!-- <button name="draft" title="Draft" showIf="paied" onClick="save"/>
+ -->		<button name="confirm" title="Confirm" showIf="state == 'draft'" onClick="save,goto-confirm"/>
+			<button name="invoice" title="Invoice" showIf="state == 'confirm'" onClick="save,goto-invoice"/>
+		    <button name="paied" title="Paied" showIf="state == 'confirm' || state == 'invoice'" onClick="goto-paied,save"/>
+		    
+	</panel>
+</form>
+
+<action-record name="record-state" model="com.axelor.sale.db.Invoice">
+	<field name="state" expr="draft"/>
+</action-record>	
+<action-record name="goto-confirm" model="com.axelor.sale.db.Invoice">
+	<field name="state" expr="confirm"/>
+</action-record>	
+<action-record name="goto-invoice" model="com.axelor.sale.db.Invoice">
+	<field name="state" expr="invoice"/>
+</action-record>
+<action-record name="goto-paied" model="com.axelor.sale.db.Invoice">
+	<field name="state" expr="paied"/>
+</action-record>
+
+
+<action-method name="act.calculate">
+  <call class="com.axelor.sale.web.SaleOrderController" method="calculateInvoice"/>
+</action-method>
+
+<action-method name="get.image.path">
+  <call class="com.axelor.sale.web.SaleOrderController" method="getInvoiceImage"/>
+</action-method>
+
+ <action-report output="Invoice-${date}${time}" name="print.invoice" design="invoice.rptdesign" 
+ format="pdf">
+ <param name="invoiceId" expr="eval: name"/>
+
+</action-report>
+
+	
+</object-views>
+
